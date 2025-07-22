@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Chatbot Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: #4a5568;
+            border-radius: 3px;
+        }
+        .chat-container::-webkit-scrollbar-track {
+            background-color: #2d3748;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex h-screen">
+
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="bg-gray-800 p-4 flex justify-between items-center border-b border-gray-700">
+            <h1 class="text-xl font-semibold">Chatbot</h1>
+            <button id="settings-button" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Chat Messages -->
+        <div id="chat-container" class="flex-1 p-4 overflow-y-auto chat-container">
+            <!-- Example Message -->
+            <div class="flex items-start gap-3 mb-4">
+                <div class="bg-blue-600 p-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                </div>
+                <div class="bg-gray-700 p-3 rounded-lg max-w-lg">
+                    <p>Hello! How can I assist you today? Configure your settings by clicking the gear icon.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="p-4 bg-gray-800 border-t border-gray-700">
+            <div class="flex items-center bg-gray-700 rounded-lg">
+                <input type="text" id="message-input" placeholder="Type your message here..." class="w-full bg-transparent p-3 focus:outline-none">
+                <button id="send-button" class="p-3 text-blue-500 hover:text-blue-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel (Initially Hidden) -->
+    <div id="settings-panel" class="hidden bg-gray-800 border-l border-gray-700 w-full max-w-sm p-6 flex-col">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold">Settings</h2>
+            <button id="close-settings-button" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <form id="settings-form" class="space-y-6 flex-1 flex flex-col">
+            <div class="flex-1 space-y-6">
+                <div>
+                    <label for="api-key" class="block text-sm font-medium text-gray-400 mb-2">API Key</label>
+                    <input type="password" id="api-key" name="api-key" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter your API key">
+                </div>
+                <div>
+                    <label for="model-select" class="block text-sm font-medium text-gray-400 mb-2">Model</label>
+                    <select id="model-select" name="model-select" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                        <option value="mistral">Mistral (Placeholder)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="system-prompt" class="block text-sm font-medium text-gray-400 mb-2">System Prompt</label>
+                    <textarea id="system-prompt" name="system-prompt" rows="6" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="e.g., You are a helpful assistant."></textarea>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const settingsButton = document.getElementById('settings-button');
+            const closeSettingsButton = document.getElementById('close-settings-button');
+            const settingsPanel = document.getElementById('settings-panel');
+            const sendButton = document.getElementById('send-button');
+            const messageInput = document.getElementById('message-input');
+            const chatContainer = document.getElementById('chat-container');
+            const settingsForm = document.getElementById('settings-form');
+
+            let apiKey = '';
+            let model = 'gemini-2.0-flash';
+            let systemPrompt = 'You are a helpful assistant.';
+            let chatHistory = [];
+
+            // --- Settings Panel Logic ---
+            settingsButton.addEventListener('click', () => {
+                settingsPanel.classList.remove('hidden');
+                settingsPanel.classList.remove('fade-out');
+                settingsPanel.classList.add('fade-in');
+            });
+
+            closeSettingsButton.addEventListener('click', () => {
+                settingsPanel.classList.add('fade-out');
+                settingsPanel.addEventListener('animationend', () => {
+                    settingsPanel.classList.add('hidden');
+                }, { once: true });
+            });
+
+            settingsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                apiKey = document.getElementById('api-key').value;
+                model = document.getElementById('model-select').value;
+                systemPrompt = document.getElementById('system-prompt').value;
+                
+                // Simple feedback
+                const saveButton = settingsForm.querySelector('button[type="submit"]');
+                saveButton.textContent = 'Saved!';
+                setTimeout(() => {
+                    saveButton.textContent = 'Save Settings';
+                    closeSettingsButton.click();
+                }, 1000);
+
+                // Clear chat and apply new system prompt
+                chatContainer.innerHTML = '';
+                addMessage('bot', 'Settings updated. The conversation has been reset.');
+                chatHistory = [];
+            });
+
+            // --- Chat Logic ---
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function addMessage(sender, text) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('flex', 'items-start', 'gap-3', 'mb-4', 'fade-in');
+                
+                let iconHtml = '';
+                let bubbleClasses = 'p-3 rounded-lg max-w-lg';
+
+                if (sender === 'user') {
+                    iconHtml = `
+                        <div class="bg-gray-600 p-2 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        </div>`;
+                    bubbleClasses += ' bg-blue-600';
+                    messageElement.classList.add('justify-end');
+                    messageElement.innerHTML = `<div class="${bubbleClasses}"><p>${text}</p></div>${iconHtml}`;
+
+                } else {
+                    iconHtml = `
+                        <div class="bg-blue-600 p-2 rounded-full">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        </div>`;
+                    bubbleClasses += ' bg-gray-700';
+                    messageElement.innerHTML = `${iconHtml}<div class="${bubbleClasses}" id="bot-thinking"><p class="italic">...</p></div>`;
+                }
+                
+                chatContainer.appendChild(messageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                if (sender === 'bot' && text) {
+                    const botMessageContainer = messageElement.querySelector('#bot-thinking p');
+                    botMessageContainer.parentElement.removeAttribute('id'); // remove thinking id
+                    botMessageContainer.classList.remove('italic');
+                    botMessageContainer.textContent = '';
+                    
+                    let i = 0;
+                    function typeWriter() {
+                        if (i < text.length) {
+                            botMessageContainer.textContent += text.charAt(i);
+                            i++;
+                            setTimeout(typeWriter, 20);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
+                    }
+                    typeWriter();
+                }
+            }
+
+            async function sendMessage() {
+                const userText = messageInput.value.trim();
+                if (!userText) return;
+
+                addMessage('user', userText);
+                messageInput.value = '';
+
+                // Add user message to history
+                chatHistory.push({ role: "user", parts: [{ text: userText }] });
+                
+                // Add thinking indicator
+                addMessage('bot', null);
+
+                if (model.startsWith('gemini')) {
+                    await callGeminiAPI();
+                } else {
+                    // Placeholder for other models like Mistral
+                    const thinkingBubble = document.getElementById('bot-thinking');
+                    if(thinkingBubble){
+                       thinkingBubble.querySelector('p').textContent = `Model '${model}' is not implemented yet. Please select a Gemini model.`;
+                       thinkingBubble.removeAttribute('id');
+                    }
+                }
+            }
+            
+            async function callGeminiAPI() {
+                const thinkingBubble = document.getElementById('bot-thinking');
+
+                if (!apiKey) {
+                    if(thinkingBubble) {
+                        thinkingBubble.querySelector('p').textContent = 'API Key not set. Please set it in the settings.';
+                        thinkingBubble.removeAttribute('id');
+                    }
+                    return;
+                }
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+                // Construct payload with system prompt and history
+                const contents = [];
+                if (systemPrompt) {
+                     // The Gemini API expects the system instruction to be at the top level of the request.
+                }
+
+                contents.push(...chatHistory);
+
+                const payload = {
+                    contents: contents,
+                     systemInstruction: {
+                        role: "system",
+                        parts: [{
+                            text: systemPrompt
+                        }]
+                    },
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API Error: ${errorData.error.message}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    let botText = "Sorry, I couldn't get a response.";
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        botText = result.candidates[0].content.parts[0].text;
+                    }
+
+                    // Add assistant response to history
+                    chatHistory.push({ role: "model", parts: [{ text: botText }] });
+
+                    // Update the "thinking" bubble with the actual response
+                    if (thinkingBubble) {
+                        const p = thinkingBubble.querySelector('p');
+                        p.classList.remove('italic');
+                        p.textContent = ''; // Clear "..."
+                        thinkingBubble.removeAttribute('id');
+
+                        // Typewriter effect for the final message
+                        let i = 0;
+                        function typeWriter() {
+                            if (i < botText.length) {
+                                p.textContent += botText.charAt(i);
+                                i++;
+                                setTimeout(typeWriter, 20);
+                                chatContainer.scrollTop = chatContainer.scrollHeight;
+                            }
+                        }
+                        typeWriter();
+                    }
+
+
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    if (thinkingBubble) {
+                       thinkingBubble.querySelector('p').textContent = `Error: ${error.message}`;
+                       thinkingBubble.removeAttribute('id');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
